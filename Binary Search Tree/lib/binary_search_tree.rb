@@ -1,5 +1,6 @@
 # There are many ways to implement these methods, feel free to add arguments 
 # to methods as you see fit, or to create helper methods.
+require 'bst_node'
 
 class BinarySearchTree
   attr_accessor :root, :count
@@ -10,7 +11,7 @@ class BinarySearchTree
   end
 
   def insert(value)
-    @root.nil? ? @root = BSTNode.new(value) : insert_rec(@root, value)
+    @root = insert_rec(@root, value)
     @count += 1
   end
 
@@ -18,7 +19,7 @@ class BinarySearchTree
     return nil unless tree_node
     if value == tree_node.value
       return tree_node
-    elsif value <= tree_node.value
+    elsif value < tree_node.value
       find(value, tree_node.left)
     else
       find(value, tree_node.right)
@@ -64,31 +65,49 @@ class BinarySearchTree
   end
 
   def depth(tree_node = @root)
-    Math.log2(@count).ceil
+    # Math.log2(@count).ceil
+
+    return -1 if tree_node.nil?
+    left_depth = depth(tree_node.left)
+    right_depth = depth(tree_node.right)
+
+    [left_depth, right_depth].max + 1
   end 
 
   def is_balanced?(tree_node = @root)
-    max_depth(tree_node) == depth(tree_node)
+    # max_depth(tree_node) == depth(tree_node)
+
+    return true if tree_node.nil?
+
+    left_depth = depth(tree_node.left)
+    right_depth = depth(tree_node.right)
+
+    (left_depth - right_depth).abs < 2 && is_balanced?(tree_node.left) && is_balanced?(tree_node.right)
   end
 
   def in_order_traversal(tree_node = @root, arr = [])
-    return [] unless tree_node
-    left = in_order_traversal(tree_node.left)
-    right = in_order_traversal(tree_node.right)
-    left + [tree_node.value] + right
+    # return [] unless tree_node
+    # left = in_order_traversal(tree_node.left)
+    # right = in_order_traversal(tree_node.right)
+    # left + [tree_node.value] + right
+
+    in_order_traversal(tree_node.left, arr) if tree_node.left
+    arr << tree_node.value
+    in_order_traversal(tree_node.right, arr) if tree_node.right
+    arr
   end
 
 
   private
-  def insert_rec(root, value)
-    if root.nil?
-      root = BSTNode.new(value)
-    elsif (value <= root.value)
-      root.left = insert_rec(root.left, value)
+  def insert_rec(tree_node, value)
+    if tree_node.nil?
+      tree_node = BSTNode.new(value)
+    elsif (value <= tree_node.value)
+      tree_node.left = insert_rec(tree_node.left, value)
     else
-      root.right = insert_rec(root.right, value)
+      tree_node.right = insert_rec(tree_node.right, value)
     end
-    root
+    tree_node
   end
 
   def get_parent(value, node=@root)
